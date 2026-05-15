@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  mqtt-broker:
+    image: eclipse-mosquitto:latest
+    container_name: mqtt_broker
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    restart: always
+
+  backend:
+    build: ./backend-prkapmob
+    container_name: elysia_backend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mqtt-broker
+    environment:
+      # Karena di dalam Docker, panggil nama service 'mqtt-broker', bukan localhost
+      - MQTT_HOST=mqtt://mqtt-broker:1883 
+
+  frontend:
+    build: ./frontend-prkapmob
+    container_name: react_dashboard
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
