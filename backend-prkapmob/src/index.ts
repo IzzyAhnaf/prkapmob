@@ -5,19 +5,23 @@ import { getDatabase, ServerValue } from 'firebase-admin/database';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import serviceAccount from '../firebase-key.json';
 
+// 1. Panggil URL Database dari .env
 initializeApp({
   credential: cert(serviceAccount as any),
-  databaseURL: "https://prkapmob-default-rtdb.asia-southeast1.firebasedatabase.app/" 
+  databaseURL: process.env.FIREBASE_DB_URL as string
 });
 
 const db = getDatabase(); 
 
-const GEMINI_API_KEY = "AIzaSyClZYRw2TICBPMRoPVzkx5GSWM4OPvX8gQ";
+// 2. Panggil API Key Gemini dari .env
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY as string;
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 const geminiModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
-const mqttClient = mqtt.connect('mqtt://mqtt-broker:1883');
-const TOPIC_SENSOR = 'iot/robot_kesehatan/data';
+// 3. Panggil konfigurasi MQTT dari .env
+const mqttUrl = process.env.MQTT_BROKER_URL as string;
+const mqttClient = mqtt.connect(mqttUrl);
+const TOPIC_SENSOR = process.env.MQTT_TOPIC as string;
 
 async function analyzeHealthData(suhu: number, hr: number, spo2: number) {
   console.log(`[AI] Meminta analisis Gemini untuk T:${suhu}°C, HR:${hr}bpm, SpO2:${spo2}%...`);
