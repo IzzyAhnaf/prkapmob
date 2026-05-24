@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
+import * as THREE from 'three';
 import type { SensorData } from '../Types/sensor';
 import { VitalColumn } from '../Components/VitalColumn';
 import { BarChart } from '../Components/BarChart';
@@ -16,6 +19,66 @@ interface DashboardViewProps {
   battPct: number;
   trend: (arr: number[]) => 'up' | 'down' | 'stable';
   setActiveTab: (tab: string) => void;
+}
+
+function Kucing3D() {
+  const groupRef = useRef<THREE.Group>(null);
+
+  useFrame((state, delta) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y += delta * 1.2; 
+      groupRef.current.position.y = Math.sin(state.clock.getElapsedTime() * 2) * 0.15;
+    }
+  });
+
+  return (
+    <group ref={groupRef} position={[0, -0.5, 0]} scale={[0.8, 0.8, 0.8]}>
+      <mesh position={[0, 0.4, 0]}>
+        <boxGeometry args={[0.8, 0.6, 1.2]} />
+        <meshStandardMaterial color="#8e8e8e" roughness={0.3} />
+      </mesh>
+
+      <mesh position={[0, 0.9, 0.6]}>
+        <boxGeometry args={[0.6, 0.5, 0.5]} />
+        <meshStandardMaterial color="#7a7a7a" roughness={0.3} />
+      </mesh>
+
+      <mesh position={[-0.2, 1.2, 0.5]}>
+        <coneGeometry args={[0.12, 0.25, 4]} />
+        <meshStandardMaterial color="#5a5a5a" />
+      </mesh>
+
+      <mesh position={[0.2, 1.2, 0.5]}>
+        <coneGeometry args={[0.12, 0.25, 4]} />
+        <meshStandardMaterial color="#5a5a5a" />
+      </mesh>
+
+      <mesh position={[-0.15, 0.95, 0.86]}>
+        <sphereGeometry args={[0.06, 16, 16]} />
+        <meshStandardMaterial color="#111" roughness={0.1} />
+      </mesh>
+
+      <mesh position={[0.15, 0.95, 0.86]}>
+        <sphereGeometry args={[0.06, 16, 16]} />
+        <meshStandardMaterial color="#111" roughness={0.1} />
+      </mesh>
+
+      <mesh position={[0, 0.85, 0.86]}>
+        <boxGeometry args={[0.08, 0.05, 0.05]} />
+        <meshStandardMaterial color="#fca5a5" />
+      </mesh>
+
+      <mesh position={[0, 0.7, -0.7]} rotation={[0.5, 0, 0]}>
+        <boxGeometry args={[0.1, 0.5, 0.1]} />
+        <meshStandardMaterial color="#6a6a6a" />
+      </mesh>
+
+      <mesh position={[-0.3, 0, 0.4]}><boxGeometry args={[0.15, 0.4, 0.15]} /><meshStandardMaterial color="#fff" /></mesh>
+      <mesh position={[0.3, 0, 0.4]}><boxGeometry args={[0.15, 0.4, 0.15]} /><meshStandardMaterial color="#fff" /></mesh>
+      <mesh position={[-0.3, 0, -0.4]}><boxGeometry args={[0.15, 0.4, 0.15]} /><meshStandardMaterial color="#fff" /></mesh>
+      <mesh position={[0.3, 0, -0.4]}><boxGeometry args={[0.15, 0.4, 0.15]} /><meshStandardMaterial color="#fff" /></mesh>
+    </group>
+  );
 }
 
 export function DashboardView({
@@ -45,6 +108,26 @@ export function DashboardView({
           <span className="big-card-title">Tanda Vital Real-time</span>
           <span className="change-btn" onClick={() => setActiveTab('Vitals')} style={{ cursor: 'pointer' }}>Lihat Detail</span>
         </div>
+
+        <div style={{
+          width: '100%',
+          height: '220px', 
+          background: 'radial-gradient(circle, rgba(30,30,30,1) 0%, rgba(15,15,15,1) 100%)',
+          borderRadius: '12px',
+          marginBottom: '20px',
+          border: '1px solid rgba(255,255,255,0.03)',
+          cursor: 'grab' 
+        }}>
+          <Canvas camera={{ position: [2, 2, 3], fov: 45 }}>
+            <ambientLight intensity={1.5} />
+            <pointLight position={[10, 10, 10]} intensity={2} />
+            <directionalLight position={[-5, 5, -5]} intensity={1} />
+            
+            <Kucing3D />
+            
+            <OrbitControls enableZoom={true} maxDistance={5} minDistance={1.5} />
+          </Canvas>
+        </div>
         
         <div style={{ 
           display: 'flex', 
@@ -52,7 +135,6 @@ export function DashboardView({
           flexWrap: 'wrap', 
           gap: '20px',
           width: '100%',
-          marginTop: '15px',
           justifyContent: 'space-between'
         }}>
           <div style={{ flex: '1 1 280px', minWidth: '250px' }}>
@@ -73,7 +155,6 @@ export function DashboardView({
         gap: '20px',
         width: '100%'
       }}>
-        
         <div className="card-dark" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box' }}>
           <div className="big-card-header">
             <span className="big-card-title" style={{ fontSize: '14px' }}>Status Hardware</span>
@@ -123,7 +204,6 @@ export function DashboardView({
         gap: '20px',
         width: '100%'
       }}>
-        
         <div className="card-light" style={{ 
           cursor: 'pointer', 
           gridColumn: 'span 1',
@@ -164,7 +244,6 @@ export function DashboardView({
                 {latest?.T_obj ? `${latest.T_obj.toFixed(1)}°C` : '–'}
               </div>
             </div>
-            
             <div style={{ marginTop: '0.6rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.05)', fontSize: '11px', color: 'rgba(255,255,255,0.4)', display: 'flex', justifyContent: 'space-between', width: '100%' }}>
               <span>Suhu Fisik Sensor:</span>
               <span style={{ color: 'rgba(255,255,255,0.8)' }}>

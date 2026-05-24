@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-three/drei": "^8.20.2",
+    "@react-three/fiber": "^9.6.1",
     "@tailwindcss/vite": "^4.3.0",
     "firebase": "^12.13.0",
     "lucide-react": "^1.16.0",
@@ -19,7 +21,8 @@
     "recharts": "^3.8.1",
     "remark-gfm": "^4.0.1",
     "sweetalert2": "^11.26.25",
-    "tailwindcss": "^4.3.0"
+    "tailwindcss": "^4.3.0",
+    "three": "^0.148.0"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
