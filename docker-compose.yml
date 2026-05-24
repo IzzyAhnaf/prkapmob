@@ -29,3 +29,16 @@ services:
       - "5173:5173"
     depends_on:
       - backend
+    env_file:
+      - ./frontend-prkapmob/.env
+
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare_tunnel
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=eyJhIjoiNDkwMGQ2ZTAzNWIwMmE1MDVkOWM3NTFlMGJiY2E2Y2IiLCJ0IjoiYmM0ZjM5ZjUtZTQ2My00OTk5LTkxYzgtNmU5OTgzYjhmZDEzIiwicyI6IllqZGxNalpoWVdRdFptWmlZaTAwWWpJNExXRXpZelV0WXpGaE5UTTBNVFF5TXpKaiJ9
+    restart: always
+    depends_on:
+      - frontend
+      - backend

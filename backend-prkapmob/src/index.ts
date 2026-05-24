@@ -13,7 +13,30 @@ initializeApp({
 
 const db = getDatabase(); 
 
-// 2. Panggil API Key Gemini dari .env
+let currentConfig = {
+  batas_ir: 50000,
+  peringatan_dini: {
+    spo2_minimal: 95,
+    suhu_maksimal: 37.5,
+    hr_minimal: 60,
+    hr_maksimal: 100
+  }
+};
+
+// Dengarkan perubahan konfigurasi dari Firebase terus-menerus
+const configRef = db.ref('konfigurasi_sistem');
+configRef.on('value', (snapshot) => {
+  if (snapshot.exists()) {
+    const data = snapshot.val();
+    currentConfig = { 
+      ...currentConfig, 
+      ...data,
+      peringatan_dini: { ...currentConfig.peringatan_dini, ...data.peringatan_dini }
+    };
+    console.log("⚙️ [Sistem] Konfigurasi berhasil diperbarui dari Firebase!");
+  }
+});
+
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY as string;
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 const geminiModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
@@ -26,15 +49,18 @@ const TOPIC_SENSOR = process.env.MQTT_TOPIC as string;
 async function analyzeHealthData(suhu: number, hr: number, spo2: number) {
   console.log(`[AI] Meminta analisis Gemini untuk T:${suhu}°C, HR:${hr}bpm, SpO2:${spo2}%...`);
   
+  // Mengambil batas dinamis dari konfigurasi terkini
+  const { spo2_minimal, suhu_maksimal, hr_minimal, hr_maksimal } = currentConfig.peringatan_dini;
+  
   const systemPrompt = `
     Kamu adalah asisten dokter digital profesional.
     Pasien melaporkan data sensor fisik berikut:
-    - Suhu Permukaan Tubuh (T_obj): ${suhu} °C
-    - Detak Jantung (HR): ${hr} BPM
-    - Saturasi Oksigen Darah (SpO2): ${spo2} %
+    - Suhu Permukaan Tubuh: ${suhu} °C (Batas normal maks: ${suhu_maksimal}°C)
+    - Detak Jantung: ${hr} BPM (Batas normal: ${hr_minimal} - ${hr_maksimal} BPM)
+    - Saturasi Oksigen: ${spo2} % (Batas normal min: ${spo2_minimal}%)
 
     Tugasmu:
-    1. Evaluasi apakah ketiga parameter ini dalam batas normal atau ada indikasi bahaya (misal: SpO2 rendah, takikardia, atau demam).
+    1. Evaluasi apakah ketiga parameter ini dalam batas normal atau ada indikasi bahaya berdasarkan panduan batas normal yang diberikan.
     2. Berikan saran pertolongan pertama atau tindakan selanjutnya.
     3. Gunakan bahasa Indonesia yang ramah, profesional, dan ringkas.
   `;
@@ -66,11 +92,12 @@ mqttClient.on('message', async (topic, message) => {
 
     let aiAdvice = "Menunggu jari ditempelkan ke sensor dengan benar...";
     
-    if (sensorData.IR_raw > 50000) {
+    // 🚀 Menggunakan batas IR dinamis dari Firebase, bukan angka mati lagi
+    if (sensorData.IR_raw > currentConfig.batas_ir) {
         aiAdvice = await analyzeHealthData(sensorData.T_obj, sensorData.HR, sensorData.SpO2);
         console.log(`[AI] Analisis selesai.`);
     } else {
-        console.log(`[Status] Jari tidak terdeteksi (IR_raw: ${sensorData.IR_raw}). AI di-skip.`);
+        console.log(`[Status] Jari tidak terdeteksi (IR_raw: ${sensorData.IR_raw} < ${currentConfig.batas_ir}). AI di-skip.`);
     }
 
     const recordData = {
