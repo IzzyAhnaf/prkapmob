@@ -1,0 +1,11 @@
+# Mengabaikan folder node_modules di semua sub-folder
+**/node_modules/
+**/dist/
+
+# Mengabaikan environment variables rahasia
+**/.env
+**/.env.local
+
+# Mengabaikan Firebase key di backend
+backend-prkapmob/firebase-key.json
+**/firebase-key.json

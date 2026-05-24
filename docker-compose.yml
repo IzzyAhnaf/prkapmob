@@ -20,7 +20,8 @@ services:
       - mqtt-broker
     environment:
       # Karena di dalam Docker, panggil nama service 'mqtt-broker', bukan localhost
-      - MQTT_HOST=mqtt://mqtt-broker:1883 
+      - MQTT_BROKER_URL=mqtt://mqtt-broker:1883
+      - MQTT_TOPIC=robot/sensor/#
 
   frontend:
     build: ./frontend-prkapmob

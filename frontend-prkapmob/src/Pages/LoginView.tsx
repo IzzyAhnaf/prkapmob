@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth'; // 👈 Hapus getAuth dari sini
-import { auth } from '../Config/firebase'; // 👈 Import langsung variabel auth
+import { signInWithEmailAndPassword } from 'firebase/auth'; 
+import { auth } from '../Config/firebase'; 
 import Swal from 'sweetalert2';
 
 interface LoginViewProps {
@@ -30,7 +30,6 @@ export function LoginView({ onLoginSuccess }: LoginViewProps) {
     setIsLoading(true);
 
     try {
-      // 🚀 Gunakan langsung variabel auth yang di-import tadi
       await signInWithEmailAndPassword(auth, email, password);
       
       Swal.fire({
@@ -67,7 +66,7 @@ export function LoginView({ onLoginSuccess }: LoginViewProps) {
     }
   };
 
-return (
+  return (
     <>
       <style>{`
         .login-container {
@@ -80,9 +79,10 @@ return (
           padding: 1.5rem;
           position: relative;
           overflow: hidden;
+          width: 100%;
+          box-sizing: border-box;
         }
 
-        /* Dekorasi pendaran latar belakang halus agar tidak terlalu flat */
         .login-container::before {
           content: '';
           position: absolute;
@@ -93,6 +93,7 @@ return (
           filter: blur(80px);
           top: 10%;
           left: 10%;
+          pointer-events: none;
         }
 
         .login-box {
@@ -104,6 +105,7 @@ return (
           padding: 2.5rem 2rem;
           box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
           animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+          box-sizing: border-box;
         }
 
         .login-logo {
@@ -128,7 +130,7 @@ return (
 
         .login-header h2 {
           font-size: 24px;
-          font-weight: 300; /* 💡 Diperbaiki dari fontWeight ke font-weight */
+          font-weight: 300;
           letter-spacing: -0.04em;
           color: #fff;
         }
@@ -144,6 +146,7 @@ return (
           display: flex;
           flex-direction: column;
           gap: 6px;
+          width: 100%;
         }
 
         .input-group label {
@@ -157,15 +160,16 @@ return (
           background: rgba(255, 255, 255, 0.02);
           border: 1px solid rgba(255, 255, 255, 0.08);
           color: #fff;
-          padding: 11px 14px;
+          padding: 12px 14px; /* Sedikit dipertebal untuk kenyamanan sentuhan HP */
           border-radius: 8px;
           font-family: inherit;
-          font-size: 13.5px;
+          font-size: 14px;
           outline: none;
           transition: all 0.2s ease;
+          width: 100%;
+          box-sizing: border-box;
         }
 
-        /* Efek fokus elegan ketika form diklik */
         .input-group input:focus {
           border-color: rgba(255, 255, 255, 0.25);
           background: rgba(255, 255, 255, 0.04);
@@ -181,14 +185,15 @@ return (
           background: #ffffff;
           color: #111110;
           border: none;
-          padding: 11px;
+          padding: 12px;
           border-radius: 8px;
           font-weight: 500;
-          font-size: 13.5px;
+          font-size: 14px;
           cursor: pointer;
           margin-top: 1.75rem;
           transition: all 0.2s ease;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          box-sizing: border-box;
         }
 
         .login-btn:hover:not(:disabled) {
@@ -206,6 +211,13 @@ return (
           color: rgba(255, 255, 255, 0.2);
           cursor: not-allowed;
           box-shadow: none;
+        }
+
+        /* Responsive tweak untuk HP layar kecil agar padding tidak terlalu sesak */
+        @media (max-width: 400px) {
+          .login-box {
+            padding: 2rem 1.5rem;
+          }
         }
       `}</style>
 

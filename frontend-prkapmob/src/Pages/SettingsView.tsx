@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { ref, set, get } from 'firebase/database';
-import { signOut } from 'firebase/auth'; // 👈 Import fungsi signOut
-import { db, auth } from '../Config/firebase'; // 👈 Import auth dari config kamu
+import { signOut } from 'firebase/auth'; 
+import { db, auth } from '../Config/firebase'; 
 import Swal from 'sweetalert2';
 
 export function SettingsView() {
-  // State Konfigurasi Alat
   const [deviceName, setDeviceName] = useState("");
   const [publishInterval, setPublishInterval] = useState(0);
   const [irThreshold, setIrThreshold] = useState(0);
   
-  // State Parameter Peringatan Dini
   const [minSpo2, setMinSpo2] = useState(0);
   const [maxSuhu, setMaxSuhu] = useState(0);
   const [minHr, setMinHr] = useState(0);
@@ -19,7 +17,6 @@ export function SettingsView() {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Ambil data dari Firebase saat halaman dimuat
   useEffect(() => {
     const fetchConfig = async () => {
       try {
@@ -100,7 +97,6 @@ export function SettingsView() {
     }
   };
 
-  // 🚀 FUNGSI LOGOUT
   const handleLogout = async () => {
     const result = await Swal.fire({
       title: 'Keluar Akun?',
@@ -145,10 +141,15 @@ export function SettingsView() {
         }
       `}</style>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+        gap: '1.5rem',
+        width: '100%',
+        boxSizing: 'border-box'
+      }}>
         
-        {/* KARTU 1: KONFIGURASI ALAT */}
-        <div className="card-dark">
+        <div className="card-dark" style={{ width: '100%', boxSizing: 'border-box' }}>
           <div className="big-card-header"><span className="big-card-title">Konfigurasi Perangkat</span></div>
           
           <div className="input-group">
@@ -182,8 +183,8 @@ export function SettingsView() {
             onClick={handleSaveConfig}
             disabled={isSaving}
             style={{ 
-              marginTop: '1rem', background: isSaving ? '#999' : '#fff', color: '#111', 
-              border: 'none', padding: '10px 16px', borderRadius: '8px', 
+              marginTop: '1.5rem', background: isSaving ? '#555' : '#fff', color: '#111', 
+              border: 'none', padding: '12px 16px', borderRadius: '8px', 
               cursor: isSaving ? 'not-allowed' : 'pointer', fontWeight: 500, width: '100%' 
             }}>
             {isSaving ? 'Menyimpan...' : 'Simpan Konfigurasi'}
@@ -191,12 +192,19 @@ export function SettingsView() {
         </div>
 
         {/* KARTU 2: PARAMETER PERINGATAN */}
-        <div className="card-dark" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'between' }}>
+        <div className="card-dark" style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          justifyContent: 'space-between',
+          width: '100%',
+          boxSizing: 'border-box',
+          gap: '1.5rem'
+        }}>
           <div>
             <div className="big-card-header"><span className="big-card-title">Parameter Peringatan Dini</span></div>
             
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <div className="input-group" style={{ flex: 1 }}>
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              <div className="input-group" style={{ flex: '1 1 130px' }}>
                 <label>MIN SpO2 (%)</label>
                 <input 
                   type="number" 
@@ -204,7 +212,7 @@ export function SettingsView() {
                   onChange={(e) => setMinSpo2(Number(e.target.value))} 
                 />
               </div>
-              <div className="input-group" style={{ flex: 1 }}>
+              <div className="input-group" style={{ flex: '1 1 130px' }}>
                 <label>MAX SUHU (°C)</label>
                 <input 
                   type="number" 
@@ -214,8 +222,8 @@ export function SettingsView() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.25rem' }}>
-              <div className="input-group" style={{ flex: 1 }}>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.25rem', flexWrap: 'wrap' }}>
+              <div className="input-group" style={{ flex: '1 1 130px' }}>
                 <label>MIN HR (BPM)</label>
                 <input 
                   type="number" 
@@ -223,7 +231,7 @@ export function SettingsView() {
                   onChange={(e) => setMinHr(Number(e.target.value))} 
                 />
               </div>
-              <div className="input-group" style={{ flex: 1 }}>
+              <div className="input-group" style={{ flex: '1 1 130px' }}>
                 <label>MAX HR (BPM)</label>
                 <input 
                   type="number" 
@@ -233,17 +241,16 @@ export function SettingsView() {
               </div>
             </div>
 
-            <div style={{ marginTop: '1.25rem', padding: '12px', background: 'rgba(252,165,165,0.04)', border: '1px solid rgba(252,165,165,0.1)', borderRadius: '8px', fontSize: '12px', color: '#fca5a5', lineHeight: 1.5 }}>
+            <div style={{ marginTop: '1.5rem', padding: '12px', background: 'rgba(252,165,165,0.04)', border: '1px solid rgba(252,165,165,0.1)', borderRadius: '8px', fontSize: '12px', color: '#fca5a5', lineHeight: 1.5 }}>
               <strong>Perhatian:</strong> Perubahan batas pada panel ini akan langsung tersinkronisasi dengan Firebase. Pastikan batas normal disetujui oleh anggota kelompok.
             </div>
           </div>
 
-          {/* 🚀 BUTTON LOGOUT BARU — Diletakkan rapi di bagian paling bawah kartu */}
           <button 
             onClick={handleLogout}
             style={{
               marginTop: 'auto',
-              padding: '10px',
+              padding: '12px',
               background: 'rgba(239, 68, 68, 0.06)',
               border: '1px solid rgba(239, 68, 68, 0.15)',
               color: '#ef4444',
